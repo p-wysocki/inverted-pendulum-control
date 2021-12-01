@@ -29,6 +29,7 @@ class Characteristic:
 				 	   right_edge_end: int = None):
 
 		# neccessary arguments
+		self.name = name
 		self.left_edge_start = left_edge_start
 		self.right_edge_start = right_edge_start
 		
@@ -37,11 +38,43 @@ class Characteristic:
 		self.right_edge_end = right_edge_end
 
 		# calculate 1st degree polynomials
-		self.left_edge_slope = self.get_slope(side='left')
-		self.right_edge_slope = self.get_slope(side='right')
+		self.left_edge_slope = self.GetSlope(side='left')
+		self.right_edge_slope = self.GetSlope(side='right')
 
 
-	def get_slope(self, side: str) -> tuple[float]:
+	def GetValue(self, x) -> float:
+
+		# if left side is continous 1
+		if not self.left_edge_end and x <= self.right_edge_start:
+			return 1
+
+		# if right side is continous 1
+		print(self.name, self.right_edge_end, self.left_edge_end)
+		if not self.right_edge_end and x >= self.left_edge_end:
+			return 1
+
+		# if on the left of characteristic
+		if self.left_edge_end and x <= self.left_left_edge_start:
+			return 0
+
+		# if on the right of the characteristic
+		if self.right_edge_end and x >= self.right_edge_end:
+			return 0
+
+		# if in the middle of the characteristic
+		if x >= self.left_edge_end and x <= self.right_edge_start:
+			return 1
+
+		# if on the left slope
+		if self.left_edge_end and x >= self.left_edge_start and x <= self.left_edge_end:
+			return self.left_edge_slope[0]*x + self.left_edge_slope[1]
+
+		# if on the right slope
+		if self.right_edge_end and x >= self.right_edge_start and x <= self.right_edge_end:
+			return self.right_edge_slope[0]*x + self.right_edge_slope[1]
+
+
+	def GetSlope(self, side: str) -> tuple[float]:
 		"""
 		Calculate first degree polynomial fit to two points.
 
@@ -85,9 +118,43 @@ class Characteristic:
 
 class FuzzyAxis:
 
-	def __init__(self, classes: List[Characteristic]):
-		pass
+	def __init__(self, characteristics: List[Characteristic]):
+		self.characteristics = characteristics
+
+
+	def GetCharacteristicsValues(self, x, theta, dx, dtheta):
+		for characteristic in self.characteristics:
+			print(characteristic.GetValue(x))
+
+
+def test(x, theta, dx, dtheta):
+	BoxOnLeft = Characteristic(name='BoxOnLeft',
+							   left_edge_start=-1*float("inf"),
+							   right_edge_start=-10,
+							   right_edge_end=0)
+
+	BoxOnRight = Characteristic(name='BoxOnRight',
+							    left_edge_start=0,
+						     	left_edge_end=10,
+								right_edge_start=float("inf"))
+
+	BoxPositionAxis = FuzzyAxis(characteristics=[BoxOnLeft, BoxOnRight])
+
+	PendulumTiltedLeft = Characteristic(name="PendulumTiltedLeft",
+										left_edge_start=0,
+										left_edge_end=0.2,
+										right_edge_start=float("inf"))
+
+	PendulumTiltedRight = Characteristic(name="PendulumTiltedRight",
+										 left_edge_start=-1*float("inf"),
+										 right_edge_start=-0.2,
+										 right_edge_end=0)
+
+	PendulumAngleAxis = FuzzyAxis(characteristics=[PendulumTiltedRight, PendulumTiltedLeft])
+
+	PendulumAngleAxis.GetCharacteristicsValues(x, theta, dx, dtheta)
 
 
 if __name__ == '__main__':
-	pendulum_on_left = Characteristic('pendulum_on_left', 500, 1000, 750, 1200)
+	pass
+

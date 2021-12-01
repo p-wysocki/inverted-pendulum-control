@@ -5,6 +5,7 @@ import numpy as np
 from numpy import sin, cos, arctan2
 from itertools import cycle
 from sys import argv, exit
+import rozmywanie
 
 class InvertedPendulum():
     '''Inicjalizacja stałych:
@@ -135,7 +136,8 @@ class InvertedPendulum():
         
     # Regulator rozmyty, który trzeba zaimplementować
     def fuzzy_control(self, x, theta, dx, dtheta):
-        print(f'x: {x}\ttheta: {theta}')
+        #print(f'x: {x}\ttheta: {theta}')
+        rozmywanie.test(x, theta, dx, dtheta)
         return 0
 
 if __name__ == '__main__':
