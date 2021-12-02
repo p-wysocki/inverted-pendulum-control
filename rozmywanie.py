@@ -6,34 +6,32 @@ class Characteristic:
 	"""
 	Class representing a single characteristic present on a fuzzy logic axis, looking like:
 
-								  ______________
+							LEE   ______________ RES
 								 /				\
 								/				 \
 							   /				  \
-	__________________________/					   \______________________________________
+	_______________________LES/					   \REE___________________________________
 	-------------------------------------------------------------------------------------> x
 
 	Arguments:
 		name - characteristic identifier
 
 		left_edge_start - x where left edge starts
-		left_edge_end - x where left edge ends (optional, only if there is a left slope)
+		left_edge_end - x where left edge ends
 
 		right_edge_start - x where right edge starts
-		right_edge_end - x where right edge ends (optional, only if there is a right slope)
+		right_edge_end - x where right edge ends
 	"""
 	def __init__(self, name: str,
 					   left_edge_start: int,
 				 	   right_edge_start: int,
-				 	   left_edge_end: int = None,
-				 	   right_edge_end: int = None):
+				 	   left_edge_end: int,
+				 	   right_edge_end: int):
 
 		# neccessary arguments
 		self.name = name
 		self.left_edge_start = left_edge_start
 		self.right_edge_start = right_edge_start
-		
-		# optional arguments
 		self.left_edge_end = left_edge_end
 		self.right_edge_end = right_edge_end
 
@@ -42,35 +40,25 @@ class Characteristic:
 		self.right_edge_slope = self.GetSlope(side='right')
 
 
-	def GetValue(self, x) -> float:
+	def GetValue(self, x: float) -> float:
+		"""
+		Return the value of characteristic it takes for given x on x_axis.
+		"""
 
-		# if left side is continous 1
-		if not self.left_edge_end and x <= self.right_edge_start:
-			return 1
-
-		# if right side is continous 1
-		print(self.name, self.right_edge_end, self.left_edge_end)
-		if not self.right_edge_end and x >= self.left_edge_end:
-			return 1
-
-		# if on the left of characteristic
-		if self.left_edge_end and x <= self.left_left_edge_start:
+		# if on left or right of characteristic
+		if x <= self.left_edge_start or x >= self.right_edge_end:
 			return 0
 
-		# if on the right of the characteristic
-		if self.right_edge_end and x >= self.right_edge_end:
-			return 0
+		# if on left slope
+		if x >= self.left_edge_start and x <= self.left_edge_end:
+			return self.left_edge_slope[0]*x + self.left_edge_slope[1]
 
-		# if in the middle of the characteristic
+		# if in the middle
 		if x >= self.left_edge_end and x <= self.right_edge_start:
 			return 1
 
-		# if on the left slope
-		if self.left_edge_end and x >= self.left_edge_start and x <= self.left_edge_end:
-			return self.left_edge_slope[0]*x + self.left_edge_slope[1]
-
-		# if on the right slope
-		if self.right_edge_end and x >= self.right_edge_start and x <= self.right_edge_end:
+		# if on right slope
+		if x >= self.right_edge_start and x <= self.right_edge_end:
 			return self.right_edge_slope[0]*x + self.right_edge_slope[1]
 
 
@@ -88,73 +76,76 @@ class Characteristic:
 		# left slope
 		if side == 'left':
 
-			# if function is equal to 1 from (-inf)
-			if self.left_edge_end is not None:
-
-				# fit a 1-degree polynomial to two points
-				a, b = np.polyfit(x=[self.left_edge_start, self.left_edge_end],
-								  y=[0, 1],
-								  deg=1)
-				return (a, b)
-
-			else:
-				return (0, 1)	# there's a horizontal line on left at 1
+			a, b = np.polyfit(x=[self.left_edge_start, self.left_edge_end],
+							  y=[0, 1],
+							  deg=1)
 
 		# right slope
 		if side == 'right':
 
-			# if function is equal to 1 to (inf)
-			if self.right_edge_end is not None:
-
-				# fit a 1-degree polynomial to two points
-				a, b = np.polyfit(x=[self.right_edge_start, self.right_edge_end],
-								  y=[1, 0],
-								  deg=1)
-				return (a, b)
-
-			else:
-				return (0, 0)	# there's a horizontal line on right at 0
+			# fit a 1-degree polynomial to two points
+			a, b = np.polyfit(x=[self.right_edge_start, self.right_edge_end],
+							  y=[1, 0],
+							  deg=1)
+		
+		return (a, b)
 
 
 class FuzzyAxis:
+	"""
+	Class representing a single fuzzy axis with multiple characteristics on it.
+	"""
 
-	def __init__(self, characteristics: List[Characteristic]):
+	def __init__(self, name: str, characteristics: List[Characteristic]):
+		self.name = name
 		self.characteristics = characteristics
 
 
-	def GetCharacteristicsValues(self, x, theta, dx, dtheta):
+	def GetCharacteristicsValues(self, value: float) -> dict:
+		"""
+		Get value for each characteristic present on FuzzyAxis.
+		"""
+		output_values = {}
 		for characteristic in self.characteristics:
-			print(characteristic.GetValue(x))
+			output_values[characteristic.name] = characteristic.GetValue(value)
 
+		return output_values
 
-def test(x, theta, dx, dtheta):
-	BoxOnLeft = Characteristic(name='BoxOnLeft',
-							   left_edge_start=-1*float("inf"),
-							   right_edge_start=-10,
-							   right_edge_end=0)
+def initialize_axes():
+	axes = []
 
-	BoxOnRight = Characteristic(name='BoxOnRight',
-							    left_edge_start=0,
-						     	left_edge_end=10,
-								right_edge_start=float("inf"))
-
-	BoxPositionAxis = FuzzyAxis(characteristics=[BoxOnLeft, BoxOnRight])
-
+	# -----------------------------PENDULUM ANGLE-----------------------------
 	PendulumTiltedLeft = Characteristic(name="PendulumTiltedLeft",
 										left_edge_start=0,
 										left_edge_end=0.2,
-										right_edge_start=float("inf"))
+										right_edge_start=100,
+										right_edge_end=101)
 
 	PendulumTiltedRight = Characteristic(name="PendulumTiltedRight",
-										 left_edge_start=-1*float("inf"),
+										 left_edge_start=-101,
+										 left_edge_end=-100,
 										 right_edge_start=-0.2,
 										 right_edge_end=0)
 
-	PendulumAngleAxis = FuzzyAxis(characteristics=[PendulumTiltedRight, PendulumTiltedLeft])
+	PendulumAngleAxis = FuzzyAxis(name="PendulumAngleAxis",
+								  characteristics=[PendulumTiltedRight, PendulumTiltedLeft])
+	axes.append(PendulumAngleAxis)
 
-	PendulumAngleAxis.GetCharacteristicsValues(x, theta, dx, dtheta)
+	# -----------------------------PENDULUM ANGLE DERIVATIVE-----------------------------
+	PendulumRotatingLeft = Characteristic(name="PendulumRotatingLeft",
+										  left_edge_start=-0.2,
+										  left_edge_end=0,
+										  right_edge_start=100,
+										  right_edge_end=101)
 
+	PendulumRotatingRight = Characteristic(name="PendulumRotatingRight",
+										   left_edge_start=-101,
+										   left_edge_end=-100,
+										   right_edge_start=0,
+										   right_edge_end=0.2)
 
-if __name__ == '__main__':
-	pass
+	PendulumRotationAxis = FuzzyAxis(name="PendulumRotationAxis",
+									 characteristics=[PendulumRotatingLeft, PendulumRotatingRight])
+	axes.append(PendulumRotationAxis)
 
+	return axes
