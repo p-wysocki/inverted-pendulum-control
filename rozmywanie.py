@@ -155,18 +155,29 @@ def initialize_axes():
 	CartOnLeft = Characteristic(name="CartOnLeft",
 								left_edge_start=-101,
 								left_edge_end=-100,
-								right_edge_start=-20,
-								right_edge_end=5)
+								right_edge_start=-10,
+								right_edge_end=3)
 
 	CartOnRight = Characteristic(name="CartOnRight",
-								 left_edge_start=-5,
-								 left_edge_end=20,
+								 left_edge_start=-3,
+								 left_edge_end=10,
 								 right_edge_start=100,
 								 right_edge_end=101)
 
 	CartPositionAxis = FuzzyAxis(name="CartPositionAxis",
 								 characteristics=[CartOnRight, CartOnLeft])
-
 	axes.append(CartPositionAxis)
+
+	# -----------------------------CART VELOCITY-----------------------------
+	CartMovingSlow = Characteristic(name="CartMovingSlow",
+									left_edge_start=-1,
+									left_edge_end=-0.5,
+									right_edge_start=0.5,
+									right_edge_end=1)
+
+	CartVelocityAxis = FuzzyAxis(name="CartVelocityAxis",
+								 characteristics=[CartMovingSlow])
+
+	axes.append(CartVelocityAxis)
 
 	return axes

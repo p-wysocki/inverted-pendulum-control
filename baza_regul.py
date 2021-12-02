@@ -8,11 +8,13 @@ def get_rules_outputs(x, theta, dx, dtheta) -> Tuple[float]:
 	PendulumAngleAxis = axes['PendulumAngleAxis']
 	PendulumRotationAxis = axes['PendulumRotationAxis']
 	CartPositionAxis = axes['CartPositionAxis']
+	CartVelocityAxis = axes['CartVelocityAxis']
 
 	# retrieve current readings 
 	pendulum_tilt = PendulumAngleAxis.GetCharacteristicsValues(theta)
 	pendulum_rotation = PendulumRotationAxis.GetCharacteristicsValues(dtheta)
 	cart_position = CartPositionAxis.GetCharacteristicsValues(x)
+	cart_velocity = CartVelocityAxis.GetCharacteristicsValues(dx)
 
 	# -------------------------RULE 1-------------------------
 	# if pendulum on left and rotating left then push cart left
@@ -27,18 +29,20 @@ def get_rules_outputs(x, theta, dx, dtheta) -> Tuple[float]:
 	pendulum_angle_push_right = fuzzy_and([pendulum_tilted_right, pendulum_rotating_right])
 
 	# -------------------------RULE 3-------------------------
-	# if cart on left of 0 and pendulum in the middle and it's not rotating push cart right
+	# if cart on left of 0 and pendulum in the middle and it's not rotating and cart is moving slow push cart right
 	pendulum_centered = pendulum_tilt['PendulumCentered']
+	cart_moving_slow = cart_velocity['CartMovingSlow']
 	pendulum_not_rotating = fuzzy_not(fuzzy_and([pendulum_rotating_right, pendulum_rotating_left]))
 	cart_on_left = cart_position['CartOnLeft']
 	cart_position_push_right = fuzzy_and([pendulum_centered, cart_on_left, pendulum_not_rotating])
 
 	# -------------------------RULE 4-------------------------
-	# if cart on right of 0 and pendulum in the middle and it's not rotating push cart left
+	# if cart on right of 0 and pendulum in the middle and it's not rotating and cart is moving slow push cart left
 	cart_on_right = cart_position['CartOnRight']
 	cart_position_push_left = fuzzy_and([pendulum_centered, cart_on_right, pendulum_not_rotating])
+	print(cart_position_push_left)
 
-	print(f'cart_on_left: {cart_on_left}| cart_on_right: {cart_on_right}| pendulum_rotating_right: {pendulum_rotating_right}| pendulum_rotating_left: {pendulum_rotating_left}| pendulum_tilted_left: {pendulum_tilted_left} pendulum_tilted_right: {pendulum_tilted_right}')
+	#print(f'cart_on_left: {cart_on_left}| cart_on_right: {cart_on_right}| pendulum_rotating_right: {pendulum_rotating_right}| pendulum_rotating_left: {pendulum_rotating_left}| pendulum_tilted_left: {pendulum_tilted_left}| pendulum_tilted_right: {pendulum_tilted_right}| dx: {dx}')
 	# compose final outputs
 	push_cart_left = fuzzy_or([pendulum_angle_push_left, cart_position_push_left])
 	push_cart_right = fuzzy_or([pendulum_angle_push_right, cart_position_push_right])
