@@ -44,7 +44,6 @@ class Characteristic:
 		"""
 		Return the value of characteristic it takes for given x on x_axis.
 		"""
-
 		# if on left or right of characteristic
 		if x <= self.left_edge_start or x >= self.right_edge_end:
 			return 0
@@ -72,7 +71,6 @@ class Characteristic:
 		Returns:
 			(a, b) as in y = a*x + b
 		"""
-
 		# left slope
 		if side == 'left':
 
@@ -95,7 +93,6 @@ class FuzzyAxis:
 	"""
 	Class representing a single fuzzy axis with multiple characteristics on it.
 	"""
-
 	def __init__(self, name: str, characteristics: List[Characteristic]):
 		self.name = name
 		self.characteristics = characteristics
@@ -116,36 +113,60 @@ def initialize_axes():
 
 	# -----------------------------PENDULUM ANGLE-----------------------------
 	PendulumTiltedLeft = Characteristic(name="PendulumTiltedLeft",
-										left_edge_start=0,
-										left_edge_end=0.2,
+										left_edge_start=-0.05,
+										left_edge_end=0.1,
 										right_edge_start=100,
 										right_edge_end=101)
 
 	PendulumTiltedRight = Characteristic(name="PendulumTiltedRight",
 										 left_edge_start=-101,
 										 left_edge_end=-100,
-										 right_edge_start=-0.2,
-										 right_edge_end=0)
+										 right_edge_start=-0.1,
+										 right_edge_end=0.05)
+
+	PendulumCentered = Characteristic(name="PendulumCentered",
+									  left_edge_start=-0.1,
+									  left_edge_end=0,
+									  right_edge_start=0,
+									  right_edge_end=0.1)
 
 	PendulumAngleAxis = FuzzyAxis(name="PendulumAngleAxis",
-								  characteristics=[PendulumTiltedRight, PendulumTiltedLeft])
+								  characteristics=[PendulumTiltedRight, PendulumTiltedLeft, PendulumCentered])
 	axes.append(PendulumAngleAxis)
 
 	# -----------------------------PENDULUM ANGLE DERIVATIVE-----------------------------
 	PendulumRotatingLeft = Characteristic(name="PendulumRotatingLeft",
 										  left_edge_start=-0.2,
-										  left_edge_end=0,
+										  left_edge_end=0.05,
 										  right_edge_start=100,
 										  right_edge_end=101)
 
 	PendulumRotatingRight = Characteristic(name="PendulumRotatingRight",
 										   left_edge_start=-101,
 										   left_edge_end=-100,
-										   right_edge_start=0,
+										   right_edge_start=-0.05,
 										   right_edge_end=0.2)
 
 	PendulumRotationAxis = FuzzyAxis(name="PendulumRotationAxis",
 									 characteristics=[PendulumRotatingLeft, PendulumRotatingRight])
 	axes.append(PendulumRotationAxis)
+
+	# -----------------------------CART POSITION-----------------------------
+	CartOnLeft = Characteristic(name="CartOnLeft",
+								left_edge_start=-101,
+								left_edge_end=-100,
+								right_edge_start=-35,
+								right_edge_end=20)
+
+	CartOnRight = Characteristic(name="CartOnRight",
+								 left_edge_start=-20,
+								 left_edge_end=35,
+								 right_edge_start=100,
+								 right_edge_end=101)
+
+	CartPositionAxis = FuzzyAxis(name="CartPositionAxis",
+								 characteristics=[CartOnRight, CartOnLeft])
+
+	axes.append(CartPositionAxis)
 
 	return axes

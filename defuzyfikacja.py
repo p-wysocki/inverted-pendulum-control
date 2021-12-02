@@ -9,8 +9,8 @@ def get_cart_force(push_cart_left, push_cart_right) -> float:
 	Returns:
 		force
 	"""
-	max_push_left_force = -100.0
-	max_push_right_force = 100.0
+	max_push_left_force = -550.0
+	max_push_right_force = 550.0
 
 	# check if they are non-zero
 	if push_cart_left or push_cart_right:
