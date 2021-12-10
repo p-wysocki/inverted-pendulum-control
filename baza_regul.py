@@ -29,18 +29,19 @@ def get_rules_outputs(x, theta, dx, dtheta) -> Tuple[float]:
 	pendulum_angle_push_right = fuzzy_and([pendulum_tilted_right, pendulum_rotating_right])
 
 	# -------------------------RULE 3-------------------------
-	# if cart on left of 0 and pendulum in the middle and it's not rotating and cart is moving slow push cart right
+	# if cart on left of 0 and pendulum in the middle and it's not rotating push cart right
 	pendulum_centered = pendulum_tilt['PendulumCentered']
 	cart_moving_slow = cart_velocity['CartMovingSlow']
 	pendulum_not_rotating = fuzzy_not(fuzzy_and([pendulum_rotating_right, pendulum_rotating_left]))
 	cart_on_left = cart_position['CartOnLeft']
 	cart_position_push_right = fuzzy_and([pendulum_centered, cart_on_left, pendulum_not_rotating])
+	#cart_position_push_right = fuzzy_and([pendulum_centered, cart_on_left])
 
 	# -------------------------RULE 4-------------------------
-	# if cart on right of 0 and pendulum in the middle and it's not rotating and cart is moving slow push cart left
+	# if cart on right of 0 and pendulum in the middle and it's not rotating push cart left
 	cart_on_right = cart_position['CartOnRight']
 	cart_position_push_left = fuzzy_and([pendulum_centered, cart_on_right, pendulum_not_rotating])
-	print(cart_position_push_left)
+	#cart_position_push_left = fuzzy_and([pendulum_centered, cart_on_right])
 
 	#print(f'cart_on_left: {cart_on_left}| cart_on_right: {cart_on_right}| pendulum_rotating_right: {pendulum_rotating_right}| pendulum_rotating_left: {pendulum_rotating_left}| pendulum_tilted_left: {pendulum_tilted_left}| pendulum_tilted_right: {pendulum_tilted_right}| dx: {dx}')
 	# compose final outputs
@@ -59,4 +60,4 @@ def fuzzy_or(values: List[float]) -> float:
 
 
 def fuzzy_not(value: float) -> float:
-	return 1.0 - value
+	return 1.0 - abs(value)

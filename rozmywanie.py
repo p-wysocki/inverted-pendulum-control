@@ -155,12 +155,12 @@ def initialize_axes():
 	CartOnLeft = Characteristic(name="CartOnLeft",
 								left_edge_start=-101,
 								left_edge_end=-100,
-								right_edge_start=-10,
-								right_edge_end=3)
+								right_edge_start=-5,
+								right_edge_end=2)
 
 	CartOnRight = Characteristic(name="CartOnRight",
-								 left_edge_start=-3,
-								 left_edge_end=10,
+								 left_edge_start=-2,
+								 left_edge_end=5,
 								 right_edge_start=100,
 								 right_edge_end=101)
 
