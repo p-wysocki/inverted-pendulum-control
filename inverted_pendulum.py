@@ -145,4 +145,4 @@ if __name__ == '__main__':
             ip = InvertedPendulum(f_name=argv[1])
         else:
             ip = InvertedPendulum(x0=90, dx0=0, theta0=0, dtheta0=0.1, ih=800, iw=1000, h_min=-80, h_max=80)
-        ip.run(sandbox=True)
+        ip.run(sandbox=False)
